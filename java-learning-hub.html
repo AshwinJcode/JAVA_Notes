@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Learning Hub</title>
+<style>
+  :root{
+    --bg: #0F1420;
+    --panel: #161D2E;
+    --panel-2: #1C2438;
+    --border: #2A3350;
+    --text: #E7E9F0;
+    --text-dim: #9098B0;
+    --accent: #E8A33D;
+    --accent-dim: #7A5A24;
+    --code-bg: #0B0F1A;
+    --green: #6FBE8F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header{
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1{
+    margin:0;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+  }
+  header p{
+    margin: 6px 0 0;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .layout{
+    display:flex;
+    min-height: calc(100vh - 92px);
+  }
+  nav{
+    width: 260px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+  .topic-btn{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    width: 100%;
+    text-align:left;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 12px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    font-family: inherit;
+  }
+  .topic-btn .num{
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    width: 18px;
+  }
+  .topic-btn:hover{
+    background: var(--panel-2);
+    color: var(--text);
+  }
+  .topic-btn.active{
+    background: var(--panel-2);
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+  .topic-btn.active .num{
+    color: var(--accent);
+  }
+  main{
+    flex: 1;
+    padding: 36px 44px;
+    max-width: 760px;
+  }
+  .topic-title{
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  .topic-sub{
+    color: var(--text-dim);
+    font-size: 14px;
+    margin: 0 0 28px;
+  }
+  .code-block{
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .code-block-head{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  .copy-btn{
+    background:none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor:pointer;
+    font-family: inherit;
+  }
+  .copy-btn:hover{ color: var(--text); border-color: var(--text-dim); }
+  pre{
+    margin:0;
+    padding: 18px 20px;
+    overflow-x:auto;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+    color: var(--green);
+    white-space: pre;
+  }
+  .explain h3{
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0 0 8px;
+    color: var(--text);
+  }
+  .explain p{
+    color: var(--text-dim);
+    font-size: 14.5px;
+    margin: 0 0 18px;
+  }
+  .nav-footer{
+    display:flex;
+    justify-content: space-between;
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .nav-footer button{
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav-footer button:hover{ border-color: var(--accent); }
+  .nav-footer button:disabled{ opacity: 0.35; cursor: default; }
+  @media (max-width: 720px){
+    .layout{ flex-direction: column; }
+    nav{ width: 100%; border-right:none; border-bottom: 1px solid var(--border); }
+    main{ padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Java learning hub</h1>
+  <p>Pick a topic on the left. Each one shows the code first, then what it does.</p>
+</header>
+
+<div class="layout">
+  <nav id="nav"></nav>
+  <main>
+    <div class="topic-title" id="topic-title"></div>
+    <div class="topic-sub" id="topic-sub"></div>
+
+    <div class="code-block">
+      <div class="code-block-head">
+        <span id="filename">Main.java</span>
+        <button class="copy-btn" onclick="copyCode()">Copy</button>
+      </div>
+      <pre id="code-content"></pre>
+    </div>
+
+    <div class="explain" id="explain"></div>
+
+    <div class="nav-footer">
+      <button id="prev-btn" onclick="go(-1)">&larr; Previous</button>
+      <button id="next-btn" onclick="go(1)">Next &rarr;</button>
+    </div>
+  </main>
+</div>
+
+<script>
+const topics = [
+  {
+    title: "Your first Java program",
+    sub: "Every Java program starts here",
+    filename: "Main.java",
+    code:
+`public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, world!");
+    }
+}`,
+    explain: [
+      ["What's happening", "Java code lives inside a class \u2014 here it's called Main. The main method is the entry point: it's the first thing Java runs when you start the program."],
+      ["Line by line", "System.out.println(...) prints text to the screen, and the semicolon at the end tells Java the instruction is finished. The curly braces { } mark where a block of code starts and ends."],
+      ["Try it", "Change the text inside the quotes and run it again to see your new message printed."]
+    ]
+  },
+  {
+    title: "Variables",
+    sub: "Storing values for later",
+    filename: "Variables.java",
+    code:
+`public class Variables {
+    public static void main(String[] args) {
+        int age = 25;
+        double price = 19.99;
+        String name = "Ravi";
+        boolean isMember = true;
+
+        System.out.println(name + " is " + age + " years old");
+    }
+}`,
+    explain: [
+      ["What's happening", "A variable is a labeled box that stores a value. Java is strongly typed, so you declare what kind of value each box will hold: int for whole numbers, double for decimals, String for text, boolean for true/false."],
+      ["Why it matters", "Once a type is set, Java won't let you put the wrong kind of value in \u2014 this catches mistakes early, before the program even runs."],
+      ["Try it", "Add a new variable for your own name and age, then print a sentence using them."]
+    ]
+  },
+  {
+    title: "If / else conditions",
+    sub: "Making decisions in code",
+    filename: "Conditions.java",
+    code:
+`public class Conditions {
+    public static void main(String[] args) {
+        int score = 82;
+
+        if (score >= 90) {
+            System.out.println("Grade: A");
+        } else if (score >= 75) {
+            System.out.println("Grade: B");
+        } else {
+            System.out.println("Grade: C or below");
+        }
+    }
+}`,
+    explain: [
+      ["What's happening", "An if statement checks a condition and only runs its block if that condition is true. else if lets you check another condition, and else catches everything left over."],
+      ["Reading the flow", "Java checks each condition top to bottom and stops at the first one that's true \u2014 so order matters when ranges overlap."],
+      ["Try it", "Change the score value and see which branch runs."]
+    ]
+  },
+  {
+    title: "Loops",
+    sub: "Repeating actions without repeating code",
+    filename: "Loops.java",
+    code:
+`public class Loops {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 5; i++) {
+            System.out.println("Count: " + i);
+        }
+    }
+}`,
+    explain: [
+      ["What's happening", "A for loop repeats a block of code a set number of times. It has three parts: a starting point (int i = 1), a condition to keep going (i <= 5), and an update after each pass (i++)."],
+      ["Why it matters", "Loops save you from writing the same line five, ten, or a thousand times \u2014 the computer does the repeating for you."],
+      ["Try it", "Change 5 to 10, or make the loop count down instead of up."]
+    ]
+  },
+  {
+    title: "Methods",
+    sub: "Packaging reusable logic",
+    filename: "Methods.java",
+    code:
+`public class Methods {
+    static int square(int number) {
+        return number * number;
+    }
+
+    public static void main(String[] args) {
+        int result = square(6);
+        System.out.println("Result: " + result);
+    }
+}`,
+    explain: [
+      ["What's happening", "A method is a named, reusable block of code. square(int number) takes one input and returns a value using the return keyword."],
+      ["Why it matters", "Instead of copy-pasting the same calculation everywhere, you write it once as a method and call it whenever you need it, like square(6) or square(9)."],
+      ["Try it", "Write your own method that adds two numbers together and call it from main."]
+    ]
+  },
+  {
+    title: "Arrays",
+    sub: "Holding a list of values",
+    filename: "Arrays.java",
+    code:
+`public class Arrays {
+    public static void main(String[] args) {
+        int[] scores = {88, 92, 79, 95};
+
+        for (int i = 0; i < scores.length; i++) {
+            System.out.println("Score " + i + ": " + scores[i]);
+        }
+    }
+}`,
+    explain: [
+      ["What's happening", "An array stores multiple values of the same type in one variable. Each value has a position, called an index, starting at 0."],
+      ["Reading the loop", "scores.length tells the loop how many items are in the array, and scores[i] fetches the value at position i."],
+      ["Try it", "Add a fifth score to the array and see the loop print it automatically."]
+    ]
+  }
+];
+
+let current = 0;
+
+function render(){
+  const t = topics[current];
+  document.getElementById('topic-title').textContent = t.title;
+  document.getElementById('topic-sub').textContent = t.sub;
+  document.getElementById('filename').textContent = t.filename;
+  document.getElementById('code-content').textContent = t.code;
+
+  const explainEl = document.getElementById('explain');
+  explainEl.innerHTML = t.explain.map(([h,p]) =>
+    `<h3>${h}</h3><p>${p}</p>`
+  ).join('');
+
+  document.querySelectorAll('.topic-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === current);
+  });
+
+  document.getElementById('prev-btn').disabled = current === 0;
+  document.getElementById('next-btn').disabled = current === topics.length - 1;
+}
+
+function buildNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = topics.map((t, i) =>
+    `<button class="topic-btn" onclick="selectTopic(${i})">
+       <span class="num">${String(i+1).padStart(2,'0')}</span>
+       <span>${t.title}</span>
+     </button>`
+  ).join('');
+}
+
+function selectTopic(i){
+  current = i;
+  render();
+}
+
+function go(delta){
+  const next = current + delta;
+  if(next >= 0 && next < topics.length){
+    current = next;
+    render();
+  }
+}
+
+function copyCode(){
+  const code = topics[current].code;
+  navigator.clipboard.writeText(code);
+  const btn = document.querySelector('.copy-btn');
+  const original = btn.textContent;
+  btn.textContent = "Copied";
+  setTimeout(() => btn.textContent = original, 1200);
+}
+
+buildNav();
+render();
+</script>
+
+</body>
+</html>
